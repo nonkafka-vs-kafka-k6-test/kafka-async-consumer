@@ -18,7 +18,7 @@ public class OrderNotificationConsumer {
     @KafkaListener(
             topics = "order.notification",
             groupId = "order-notification-group",
-            concurrency = "5"
+            concurrency = "5" // 5개의 스레드로 메시지 poll
     )
     public void consume(String message) {
         try {
@@ -27,6 +27,7 @@ public class OrderNotificationConsumer {
             // 알림 발송 시뮬레이션
             Thread.sleep(1000);
 
+            // 주문 테이블의 알림 컬럼 update
             orderNotificationService.updateNotificationStatus(dto.getOrderId());
 
             log.info("🔔 [Thread: {}] 알림 발송 완료 - orderId: {}",
