@@ -1,0 +1,38 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: kafka-write-project-consumer
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/kafka_project?rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
+    username: root
+    password: ${MYSQL_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false # 벤치마크 성능 최적화를 위한 콘솔 로그 off (훌륭한 선택)
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500 # 500건씩 묶어서 대량 삽입 실행
+        order_inserts: true # insert 쿼리 정렬을 통한 하이러키 배치 최적화
+
+  kafka:
+    bootstrap-servers:
+      - localhost:9092
+      - localhost:9094
+      - localhost:9096
+
+    consumer:
+      group-id: orders-bulk-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      max-poll-records: 5000
+
+    listener:
+      type: batch # @KafkaListener에서 List 형태로 한 번에 수신받기 위한 배치 리스너 활성화
